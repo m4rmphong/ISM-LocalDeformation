@@ -20,7 +20,40 @@ int WindWidth, WindHeight;
 int last_x , last_y;
 int selectedFeature = -1;
 vector<int> featureList;
-vector<vector3> featureOringinPos;
+_GLMmodel *originMesh;
+vector<float> w;
+
+/*implement*/
+#define STDDIFF 0.3
+double radiusBasis(vector3 cPt, vector3 Pt)
+{
+	float r = (Pt - cPt).length();
+	return exp(-r*r / (2 * STDDIFF*STDDIFF));
+}
+
+/*calculate weight of control point */
+void weightCalculate()
+{
+	
+}
+
+void localDeformation()
+{
+	vector3 fPt(mesh->vertices[3 * selectedFeature + 0], mesh->vertices[3 * selectedFeature + 1], mesh->vertices[3 * selectedFeature + 2]);
+	vector3 orif(originMesh->vertices[3 * selectedFeature + 0], originMesh->vertices[3 * selectedFeature + 1], originMesh->vertices[3 * selectedFeature + 2]);
+	vector3 vecf(fPt.x - orif.x, fPt.y - orif.y, fPt.z - orif.z);
+	vector3 d(0.0, 0.0, 0.0);
+	for (int i = 0; i < mesh->numvertices; i++)
+	{
+		if (i == selectedFeature) continue;
+		vector3 point(originMesh->vertices[3 * i + 0], originMesh->vertices[3 * i + 1], originMesh->vertices[3 * i + 2]);
+		double sai = radiusBasis(orif, point);
+		d = sai*vecf;
+		mesh->vertices[3 * i + 0] = originMesh->vertices[3 * i + 0] + d.x;
+		mesh->vertices[3 * i + 1] = originMesh->vertices[3 * i + 1] + d.y;
+		mesh->vertices[3 * i + 2] = originMesh->vertices[3 * i + 2] + d.z;
+	}
+}
 
 void Reshape(int width, int height)
 {
@@ -132,14 +165,9 @@ void mouse(int button, int state, int x, int y)
 	  }
 	  
 	  /*record new feature*/
-	  featureOringinPos.push_back(vector3(mesh->vertices[3 * minIdx + 0], mesh->vertices[3 * minIdx + 1], mesh->vertices[3 * minIdx + 2]));
 	  featureList.push_back(minIdx);
-	  
-	  cout << featureList.size() << endl;
-	  for (int i = 0; i < featureList.size(); i++)
-	  {
-		  cout << featureOringinPos[i].x << " " << featureOringinPos[i].y << " " << featureOringinPos[i].z << endl;
-	  }
+	  w.push_back(1.0);
+	  weightCalculate();
   }
 
   // manipulate feature
@@ -189,8 +217,9 @@ void motion(int x, int y)
 	  mesh->vertices[3 * selectedFeature + 0] += vec.x;
 	  mesh->vertices[3 * selectedFeature + 1] -= vec.y;
 	  mesh->vertices[3 * selectedFeature + 2] += vec.z;
-
+	  
 	  /*new position of other points*/
+	  localDeformation();
 	  
   }
 
@@ -243,10 +272,16 @@ int main(int argc, char *argv[])
 
   // load 3D model
   mesh = glmReadOBJ("../data/head.obj");
-  
+  originMesh = glmReadOBJ("../data/head.obj"); //implement
+  cout << originMesh << " " << mesh << endl;
+
   glmUnitize(mesh);
   glmFacetNormals(mesh);
   glmVertexNormals(mesh , 90.0);
+
+  glmUnitize(originMesh);
+  glmFacetNormals(originMesh);
+  glmVertexNormals(originMesh, 90.0);
 
   glutMainLoop();
 
