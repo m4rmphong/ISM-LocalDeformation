@@ -20,11 +20,12 @@ int WindWidth, WindHeight;
 int last_x , last_y;
 int selectedFeature = -1;
 vector<int> featureList;
+vector3 vecf;
 _GLMmodel *originMesh;
-vector<float> w;
+vector<float> w(4,1.0);
 
 /*implement*/
-#define STDDIFF 0.3
+#define STDDIFF 0.15
 double radiusBasis(vector3 cPt, vector3 Pt)
 {
 	float r = (Pt - cPt).length();
@@ -41,17 +42,19 @@ void localDeformation()
 {
 	vector3 fPt(mesh->vertices[3 * selectedFeature + 0], mesh->vertices[3 * selectedFeature + 1], mesh->vertices[3 * selectedFeature + 2]);
 	vector3 orif(originMesh->vertices[3 * selectedFeature + 0], originMesh->vertices[3 * selectedFeature + 1], originMesh->vertices[3 * selectedFeature + 2]);
-	vector3 vecf(fPt.x - orif.x, fPt.y - orif.y, fPt.z - orif.z);
+	
+	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
+	
 	vector3 d(0.0, 0.0, 0.0);
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
 		if (i == selectedFeature) continue;
 		vector3 point(originMesh->vertices[3 * i + 0], originMesh->vertices[3 * i + 1], originMesh->vertices[3 * i + 2]);
 		double sai = radiusBasis(orif, point);
-		d = sai*vecf;
-		mesh->vertices[3 * i + 0] = originMesh->vertices[3 * i + 0] + d.x;
-		mesh->vertices[3 * i + 1] = originMesh->vertices[3 * i + 1] + d.y;
-		mesh->vertices[3 * i + 2] = originMesh->vertices[3 * i + 2] + d.z;
+		d = w[fIdx]*sai*vecf;
+		mesh->vertices[3 * i + 0] +=d.x;
+		mesh->vertices[3 * i + 1] -=d.y;
+		mesh->vertices[3 * i + 2] +=d.z;
 	}
 }
 
@@ -217,7 +220,10 @@ void motion(int x, int y)
 	  mesh->vertices[3 * selectedFeature + 0] += vec.x;
 	  mesh->vertices[3 * selectedFeature + 1] -= vec.y;
 	  mesh->vertices[3 * selectedFeature + 2] += vec.z;
-	  
+	  vecf.x = vec.x;
+	  vecf.y = vec.y;
+	  vecf.z = vec.z;
+
 	  /*new position of other points*/
 	  localDeformation();
 	  
