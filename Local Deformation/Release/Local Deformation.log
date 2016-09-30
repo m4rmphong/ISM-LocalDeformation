@@ -1,0 +1,17 @@
+﻿已經開始建置於 2016/9/30 下午 03:13:34。
+     1>節點 2 (Build 目標) 上的專案 "D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Local Deformation\Local Deformation.vcxproj"。
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\glut kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.lib" /MACHINE:X86 /SAFESEH:NO opengl32.lib glu32.lib glut32.lib Release\Example.obj
+         Release\glm.obj
+         Release\mtxlib.obj
+         Release\trackball.obj
+         正在產生程式碼
+     1>d:\susan\nctucs\ism\hw1\ism-localdeformation\glm.cpp(287): warning C4700: 使用了未初始化的區域變數 'width'
+     1>d:\susan\nctucs\ism\hw1\ism-localdeformation\glm.cpp(288): warning C4700: 使用了未初始化的區域變數 'height'
+         已完成程式碼產生
+         Local Deformation.vcxproj -> D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.exe
+     1>專案 "D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Local Deformation\Local Deformation.vcxproj" (Build 目標) 建置完成。
+
+建置成功。
+
+經過時間 00:00:00.65
