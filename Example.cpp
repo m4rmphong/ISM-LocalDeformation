@@ -20,6 +20,7 @@ int WindWidth, WindHeight;
 int last_x , last_y;
 int selectedFeature = -1;
 vector<int> featureList;
+vector<vector3> featureOringinPos;
 
 void Reshape(int width, int height)
 {
@@ -117,19 +118,28 @@ void mouse(int button, int state, int x, int y)
 
 	  vector3 pos = Unprojection(vector2((float)x , (float)y));
 
+	  /*find the nearest vertex as feature vertex*/
 	  for (int i = 0 ; i < mesh->numvertices ; i++)
 	  {
 		  vector3 pt(mesh->vertices[3 * i + 0] , mesh->vertices[3 * i + 1] , mesh->vertices[3 * i + 2]);
 		  float dis = (pos - pt).length();
-
+		  
 		  if (minDis > dis)
 		  {
 			  minDis = dis;
 			  minIdx = i;
 		  }
 	  }
-
+	  
+	  /*record new feature*/
+	  featureOringinPos.push_back(vector3(mesh->vertices[3 * minIdx + 0], mesh->vertices[3 * minIdx + 1], mesh->vertices[3 * minIdx + 2]));
 	  featureList.push_back(minIdx);
+	  
+	  cout << featureList.size() << endl;
+	  for (int i = 0; i < featureList.size(); i++)
+	  {
+		  cout << featureOringinPos[i].x << " " << featureOringinPos[i].y << " " << featureOringinPos[i].z << endl;
+	  }
   }
 
   // manipulate feature
@@ -175,9 +185,13 @@ void motion(int x, int y)
 	  gettbMatrix((float *)&m);
 	  vec = m * vec;
 
+	  /*new position of feature vertex*/
 	  mesh->vertices[3 * selectedFeature + 0] += vec.x;
 	  mesh->vertices[3 * selectedFeature + 1] -= vec.y;
 	  mesh->vertices[3 * selectedFeature + 2] += vec.z;
+
+	  /*new position of other points*/
+	  
   }
 
   last_x = x;

@@ -1,6 +1,13 @@
-﻿已經開始建置於 2016/9/30 下午 03:13:34。
+﻿已經開始建置於 2016/9/30 下午 04:29:24。
      1>節點 2 (Build 目標) 上的專案 "D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Local Deformation\Local Deformation.vcxproj"。
-     1>Link:
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I..\glut /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ..\Example.cpp
+         Example.cpp
+     1>..\Example.cpp(68): warning C4018: '<' : signed/unsigned 不相符
+     1>..\Example.cpp(122): warning C4018: '<' : signed/unsigned 不相符
+     1>..\Example.cpp(139): warning C4018: '<' : signed/unsigned 不相符
+     1>..\Example.cpp(153): warning C4018: '<' : signed/unsigned 不相符
+       Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:..\glut kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Susan\NCTUCS\ISM\Hw1\ISM-LocalDeformation\Release\Local Deformation.lib" /MACHINE:X86 /SAFESEH:NO opengl32.lib glu32.lib glut32.lib Release\Example.obj
          Release\glm.obj
          Release\mtxlib.obj
@@ -14,4 +21,4 @@
 
 建置成功。
 
-經過時間 00:00:00.65
+經過時間 00:00:02.14
