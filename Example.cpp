@@ -11,8 +11,10 @@
 #include "glm.h"
 #include "mtxlib.h"
 #include "trackball.h"
+#include "Eigen/Dense"
 
 using namespace std;
+using namespace Eigen;
 
 _GLMmodel *mesh;
 int WindWidth, WindHeight;
@@ -20,14 +22,16 @@ int WindWidth, WindHeight;
 int last_x , last_y;
 int selectedFeature = -1;
 vector<int> featureList;
-vector3 vecf;
 _GLMmodel *originMesh;
+vector3 vecf;
 vector<float> w(4,1.0);
 
 /*implement*/
-#define STDDIFF 0.15
-double radiusBasis(vector3 cPt, vector3 Pt)
+#define STDDIFF 0.3
+double radiusBasis(int cPtIdx, int PtIdx)
 {
+	vector3 cPt(originMesh->vertices[3 * cPtIdx + 0], originMesh->vertices[3 * cPtIdx + 1], originMesh->vertices[3 * cPtIdx + 2]);
+	vector3 Pt(originMesh->vertices[3 * PtIdx + 0], originMesh->vertices[3 * PtIdx + 1], originMesh->vertices[3 * PtIdx + 2]);
 	float r = (Pt - cPt).length();
 	return exp(-r*r / (2 * STDDIFF*STDDIFF));
 }
@@ -35,23 +39,41 @@ double radiusBasis(vector3 cPt, vector3 Pt)
 /*calculate weight of control point */
 void weightCalculate()
 {
+	matrix44 psi = IdentityMatrix44();
+	vector4 weight(0.0, 0.0, 0.0, 0.0);
+	vector4 d(0.01, 0.01, 0.01, 0.01);
+	vector4 v(0.01, 0.01, 0.01, 0.01);
+	//float psi[4][4];
+	for (int i = 0; i < featureList.size(); i++)
+	{
+		
+		for (int j = 0; j < featureList.size(); j++)
+		{
+			if (i != j) psi[i][j] = radiusBasis(i, j);
+			//cout << psi[i][j] << "     ";
+		}
+		//cout << endl;
+	}
 	
+	weight = psi.invert()*d;
+	for (int i = 0; i < featureList.size(); i++)
+	{
+		w[i] = weight[i] / v[i];
+		cout << w[i] << " ";
+	}
+	cout << endl;
 }
 
 void localDeformation()
-{
-	vector3 fPt(mesh->vertices[3 * selectedFeature + 0], mesh->vertices[3 * selectedFeature + 1], mesh->vertices[3 * selectedFeature + 2]);
-	vector3 orif(originMesh->vertices[3 * selectedFeature + 0], originMesh->vertices[3 * selectedFeature + 1], originMesh->vertices[3 * selectedFeature + 2]);
-	
+{	
 	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
 	
-	vector3 d(0.0, 0.0, 0.0);
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
 		if (i == selectedFeature) continue;
-		vector3 point(originMesh->vertices[3 * i + 0], originMesh->vertices[3 * i + 1], originMesh->vertices[3 * i + 2]);
-		double sai = radiusBasis(orif, point);
-		d = w[fIdx]*sai*vecf;
+		double sai = radiusBasis(selectedFeature, i);
+		//vector3 d = w[fIdx]*sai*vecf;
+		vector3 d = sai*vecf;
 		mesh->vertices[3 * i + 0] +=d.x;
 		mesh->vertices[3 * i + 1] -=d.y;
 		mesh->vertices[3 * i + 2] +=d.z;
@@ -223,6 +245,7 @@ void motion(int x, int y)
 	  vecf.x = vec.x;
 	  vecf.y = vec.y;
 	  vecf.z = vec.z;
+	  cout << vecf.x << " " << vecf.y << " " << vec.z << endl;
 
 	  /*new position of other points*/
 	  localDeformation();
