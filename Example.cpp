@@ -25,9 +25,11 @@ vector<int> featureList;
 _GLMmodel *originMesh;
 vector3 vecf;
 vector<float> w(4,1.0);
+MatrixXd* psi;
 
 /*implement*/
-#define STDDIFF 0.3
+#define STDDIFF 0.2
+
 double radiusBasis(int cPtIdx, int PtIdx)
 {
 	vector3 cPt(originMesh->vertices[3 * cPtIdx + 0], originMesh->vertices[3 * cPtIdx + 1], originMesh->vertices[3 * cPtIdx + 2]);
@@ -36,38 +38,32 @@ double radiusBasis(int cPtIdx, int PtIdx)
 	return exp(-r*r / (2 * STDDIFF*STDDIFF));
 }
 
+/*Construct Psi Matrix*/
+void psiMatrix()
+{
+	MatrixXd temp(featureList.size(), featureList.size());
+	for (int i = 0; i < featureList.size(); i++)
+	{
+		for (int j = 0; j < featureList.size(); j++)
+		{
+			if (i == j)	temp(i, j) = 1;
+			else temp(i, j) = radiusBasis(featureList[i], featureList[j]);
+		}
+	}
+	psi = &temp;
+}
+
 /*calculate weight of control point */
 void weightCalculate()
 {
-	matrix44 psi = IdentityMatrix44();
-	vector4 weight(0.0, 0.0, 0.0, 0.0);
-	vector4 d(0.01, 0.01, 0.01, 0.01);
-	vector4 v(0.01, 0.01, 0.01, 0.01);
-	//float psi[4][4];
-	for (int i = 0; i < featureList.size(); i++)
-	{
-		
-		for (int j = 0; j < featureList.size(); j++)
-		{
-			if (i != j) psi[i][j] = radiusBasis(i, j);
-			//cout << psi[i][j] << "     ";
-		}
-		//cout << endl;
-	}
+	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
 	
-	weight = psi.invert()*d;
-	for (int i = 0; i < featureList.size(); i++)
-	{
-		w[i] = weight[i] / v[i];
-		cout << w[i] << " ";
-	}
-	cout << endl;
 }
 
 void localDeformation()
 {	
 	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
-	
+	weightCalculate();
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
 		if (i == selectedFeature) continue;
@@ -192,7 +188,8 @@ void mouse(int button, int state, int x, int y)
 	  /*record new feature*/
 	  featureList.push_back(minIdx);
 	  w.push_back(1.0);
-	  weightCalculate();
+	  psiMatrix();
+	  //weightCalculate();
   }
 
   // manipulate feature
@@ -245,7 +242,7 @@ void motion(int x, int y)
 	  vecf.x = vec.x;
 	  vecf.y = vec.y;
 	  vecf.z = vec.z;
-	  cout << vecf.x << " " << vecf.y << " " << vec.z << endl;
+	  //cout << vecf.x << " " << vecf.y << " " << vec.z << endl;
 
 	  /*new position of other points*/
 	  localDeformation();
