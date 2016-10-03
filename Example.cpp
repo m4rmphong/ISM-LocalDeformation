@@ -29,7 +29,7 @@ MatrixXd psi(1, 1);
 MatrixXd wv;
 
 /*implement*/
-#define STDDIFF 0.1
+#define STDDIFF 0.2
 
 double radiusBasis(int cPtIdx, int PtIdx)
 {
@@ -42,9 +42,7 @@ double radiusBasis(int cPtIdx, int PtIdx)
 /*Construct Psi Matrix*/
 void psiMatrix()
 {
-	//cout << "Previous PsiMatrix:" << endl << psi << endl;
-	cout << "===Calculate PsiMatrix.===" << endl;
-	psi.resize(featureList.size(), featureList.size());//MatrixXd temp(featureList.size(), featureList.size());
+	psi.resize(featureList.size(), featureList.size());
 	for (int i = 0; i < featureList.size(); i++)
 	{
 		for (int j = 0; j < featureList.size(); j++)
@@ -53,14 +51,11 @@ void psiMatrix()
 			else psi(i, j) = radiusBasis(featureList[i], featureList[j]);
 		}
 	}
-	//cout << psi << endl;
-	cout << "===Calculate PsiMatrix End.===" << endl;
 }
 
 /*calculate weight of control point */
 void weightCalculate()
 {
-	cout << "===Calculate Weight.===\n" << endl;
 	/*Intialize*/
 	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
 	cout << "Feature" << fIdx + 1 << endl;
@@ -69,13 +64,10 @@ void weightCalculate()
 	v << vecf.x, vecf.y, vecf.z;
 	d=MatrixXd::Zero(d.rows(),d.cols());
 	d.row(fIdx) << v;
-	//cout << "d:\n" << d << endl;
 	
 	/*Compute: d = psi*wv -> wv = psi.inverse()*d */
 	wv = psi.inverse()*d;
 	cout << "WV size: " << wv.rows() << "x" << wv.cols() << "\n" << wv << endl;
-	
-	cout << "===Calculate Weight End.===\n" << endl;
 }
 
 void localDeformation()
@@ -98,7 +90,7 @@ void localDeformation()
 	
 	
 	
-	///*ver1*/
+	///*no constrain*/
 	//int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
 	////weightCalculate();	
 	//for (int i = 0; i < mesh->numvertices; i++)
