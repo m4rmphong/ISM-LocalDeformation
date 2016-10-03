@@ -24,11 +24,12 @@ int selectedFeature = -1;
 vector<int> featureList;
 _GLMmodel *originMesh;
 vector3 vecf;
-vector<float> w(4,1.0);
-MatrixXd* psi;
+vector<double> w(4,1.0);
+MatrixXd psi(1, 1);
+MatrixXd wv;
 
 /*implement*/
-#define STDDIFF 0.2
+#define STDDIFF 0.1
 
 double radiusBasis(int cPtIdx, int PtIdx)
 {
@@ -41,39 +42,75 @@ double radiusBasis(int cPtIdx, int PtIdx)
 /*Construct Psi Matrix*/
 void psiMatrix()
 {
-	MatrixXd temp(featureList.size(), featureList.size());
+	//cout << "Previous PsiMatrix:" << endl << psi << endl;
+	cout << "===Calculate PsiMatrix.===" << endl;
+	psi.resize(featureList.size(), featureList.size());//MatrixXd temp(featureList.size(), featureList.size());
 	for (int i = 0; i < featureList.size(); i++)
 	{
 		for (int j = 0; j < featureList.size(); j++)
 		{
-			if (i == j)	temp(i, j) = 1;
-			else temp(i, j) = radiusBasis(featureList[i], featureList[j]);
+			if (i == j)	psi(i, j) = 1;
+			else psi(i, j) = radiusBasis(featureList[i], featureList[j]);
 		}
 	}
-	psi = &temp;
+	//cout << psi << endl;
+	cout << "===Calculate PsiMatrix End.===" << endl;
 }
 
 /*calculate weight of control point */
 void weightCalculate()
 {
+	cout << "===Calculate Weight.===\n" << endl;
+	/*Intialize*/
 	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
+	cout << "Feature" << fIdx + 1 << endl;
+	MatrixX3d d(featureList.size(),3);
+	RowVector3d v;
+	v << vecf.x, vecf.y, vecf.z;
+	d=MatrixXd::Zero(d.rows(),d.cols());
+	d.row(fIdx) << v;
+	//cout << "d:\n" << d << endl;
 	
+	/*Compute: d = psi*wv -> wv = psi.inverse()*d */
+	wv = psi.inverse()*d;
+	cout << "WV size: " << wv.rows() << "x" << wv.cols() << "\n" << wv << endl;
+	
+	cout << "===Calculate Weight End.===\n" << endl;
 }
 
 void localDeformation()
 {	
-	int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
 	weightCalculate();
+	/*version: wv*/
 	for (int i = 0; i < mesh->numvertices; i++)
 	{
-		if (i == selectedFeature) continue;
-		double sai = radiusBasis(selectedFeature, i);
-		//vector3 d = w[fIdx]*sai*vecf;
-		vector3 d = sai*vecf;
-		mesh->vertices[3 * i + 0] +=d.x;
-		mesh->vertices[3 * i + 1] -=d.y;
-		mesh->vertices[3 * i + 2] +=d.z;
+		RowVector3d d;
+		d << 0, 0, 0;
+		for (int fIdx = 0; fIdx < featureList.size(); fIdx++)
+		{
+			//cout << "feature" << fIdx << ": \n";// << d;
+			d += radiusBasis(featureList[fIdx], i)*wv.row(fIdx);
+		}
+		mesh->vertices[3 * i + 0] += d(0);
+		mesh->vertices[3 * i + 1] -= d(1);
+		mesh->vertices[3 * i + 2] += d(2);
 	}
+	
+	
+	
+	///*ver1*/
+	//int fIdx = distance(featureList.begin(), find(featureList.begin(), featureList.end(), selectedFeature));
+	////weightCalculate();	
+	//for (int i = 0; i < mesh->numvertices; i++)
+	//{
+	//	if (i == selectedFeature) continue;
+	//	double sai = radiusBasis(selectedFeature, i);
+	//	vector3 d = w[fIdx]*sai*vecf;
+	//	//vector3 d = sai*vecf;
+	//	mesh->vertices[3 * i + 0] +=d.x;
+	//	mesh->vertices[3 * i + 1] -=d.y;
+	//	mesh->vertices[3 * i + 2] +=d.z;
+	//}
 }
 
 void Reshape(int width, int height)
