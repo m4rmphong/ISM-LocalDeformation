@@ -282,6 +282,19 @@ void motion(int x, int y)
   last_y = y;
 }
 
+void keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'r':
+		for (int i = 0; i < mesh->numvertices*3; i++)
+			mesh->vertices[i] = originMesh->vertices[i];
+		break;
+	default:
+		break;
+	}
+}
+
 void timf(int value)
 {
   glutPostRedisplay();
@@ -307,6 +320,7 @@ int main(int argc, char *argv[])
   glutDisplayFunc(Display);
   glutMouseFunc(mouse);
   glutMotionFunc(motion);
+  glutKeyboardFunc(keyboard);
   glClearColor(0, 0, 0, 0);
 
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
